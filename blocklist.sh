@@ -13,7 +13,7 @@ verbose=${1:-silent}
 # List of dns-over-https servers
 #
 doh_servers="\
-    http://octo.jumpnow/downloads/doh_servers.txt \
+    https://jumpnowtek.com/downloads/doh_servers.txt \
 " 
 
 #
