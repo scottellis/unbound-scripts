@@ -1,6 +1,10 @@
 ### unbound-scripts
 
-A script to fetch, parse and consolidate advertising and malware blocklists and format for use in [unbound(8)][unbound].
+The script *blocklist.sh* will fetch, parse and consolidate [DoH][doh], advertising and malware blocklists and format for use in [unbound(8)][unbound].
+
+There are some example [unbound.conf(5)][unbound-conf] files to assist getting started.
+
+I am using unbound with [OpenBSD][openbsd]. The scripts and configs are not intended to be OpenBSD specific, but it is the only system where I tested.
 
 The blocklists tend to come in one of two formats:
 
@@ -22,7 +26,7 @@ for each entry in the blocklist.
 A response type of *static* can be used instead of *always_nxdomain*.
 See the *local-zone* section of [unbound.conf(5)][unbound-conf] for details.
 
-If satisfied with the result, copy the list to a more permanent location. I use */var/unbound/etc/blocklist.conf*. 
+If satisfied with the result, copy the list to a more permanent location. I use */var/unbound/etc/blocklist.conf*.
 
 Then tell [unbound][unbound] to use the list with an [unbound.conf(5)][unbound-conf] include statement.
 
@@ -51,7 +55,9 @@ Then [unbound-control(8)][unbound-control] with a *stats* or *stats_noreset* arg
     num.answer.secure=0
     num.answer.bogus=0
 
-  
+
 [unbound]: https://man.openbsd.org/unbound
 [unbound-conf]: https://man.openbsd.org/unbound.conf
-[unbound-control]: https://man.openbsd.org/unbound-control 
+[unbound-control]: https://man.openbsd.org/unbound-control
+[openbsd]: https://openbsd.org
+[doh]: https://en.wikipedia.org/wiki/DNS_over_HTTPS
