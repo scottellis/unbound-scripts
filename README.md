@@ -31,7 +31,7 @@ Then tell [unbound][unbound] to use the list with an [unbound.conf(5)][unbound-c
         include: /var/unbound/etc/blocklist.conf
         ...
 
-To monitor effectiveness, enable *extended-statistics* in [unbound.conf(5)][unbound.conf].
+To monitor effectiveness, enable *extended-statistics* in [unbound.conf(5)][unbound-conf].
 
     server:
         ...
