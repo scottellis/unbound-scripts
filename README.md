@@ -6,6 +6,8 @@ There are some example [unbound.conf(5)][unbound-conf] files to assist getting s
 
 I am using unbound with [OpenBSD][openbsd]. The scripts and configs are not intended to be OpenBSD specific, but it is the only system where I tested.
 
+The *ftp* command in the *blocklist.sh* script will need a replacement (curl, wget) for non-OpenBSD systems.
+
 The blocklists tend to come in one of two formats:
 
 * host-format: 127.0.0.0 aaa.com or 0.0.0.0 bbb.com
