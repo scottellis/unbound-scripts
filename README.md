@@ -69,13 +69,26 @@ The DNS query results show up in */var/log/daemon*
     ...
 
 
+The **NXDOMAIN** responses are for the most part from the blocklist, though a few could be real.
+
+For convenience you could force unbound logs to one location by adding a few lines to [syslog.conf(5)][syslog-conf]
+
+    !!unbound
+    *.*							/var/log/unbound
+    !*
+
+Then create the file and restart syslogd
+
+    # touch /var/log/unbound
+    # rcctl restart syslogd
+
+
 Enable *extended-statistics* in [unbound.conf(5)][unbound-conf] for more summary data.
 
     server:
         ...
         extended-statistics: yes
         ...
-
 
 Then [unbound-control(8)][unbound-control] with a *stats* or *stats_noreset* argument to view stats on blocked queries.
 
@@ -98,3 +111,4 @@ Then [unbound-control(8)][unbound-control] with a *stats* or *stats_noreset* arg
 [unbound-control]: https://man.openbsd.org/unbound-control
 [openbsd]: https://openbsd.org
 [doh]: https://en.wikipedia.org/wiki/DNS_over_HTTPS
+[syslog-conf]: https://man.openbsd.org/syslog.conf.5
