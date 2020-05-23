@@ -1,14 +1,16 @@
 ## unbound-scripts
 
-I am using unbound with [OpenBSD][openbsd]. The scripts and configs are not intended to be OpenBSD specific, but it is the only system where I tested.
+I am using [unbound(8)][unbound] with [OpenBSD][openbsd] to add some advertising and malware blocking at the DNS level to my local network.
 
-The script *blocklist.sh* will fetch, parse and consolidate [DoH][doh], advertising and malware blocklists and format for use in [unbound(8)][unbound].
+The scripts and configs are not intended to be *OpenBSD* specific, but it is the only system where I am testing.
 
-The *ftp* command in the *blocklist.sh* script will need a replacement (curl, wget) for non-OpenBSD systems.
+The script *blocklist.sh* will fetch, parse and consolidate the [DoH][doh], advertising and malware blocklists and format them for use in *unbound*.
 
-There are some example [unbound.conf(5)][unbound-conf] files to assist getting started.
+The *ftp* command in the *blocklist.sh* script will need a replacement (probably curl, wget) for non-OpenBSD systems.
 
-The blocklists tend to come in one of two formats:
+There are some example [unbound.conf(5)][unbound-conf] files provided. 
+
+The blocklists I am using tend to come in one of two formats:
 
 * host-format: 127.0.0.0 aaa.com or 0.0.0.0 bbb.com
 * simple-format: aaa.com
