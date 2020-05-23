@@ -7,7 +7,7 @@ tmpfile=$(mktemp)
 
 blocklist="/tmp/blocklist.conf"
 
-verbose=${1:-silent}
+verbose=${1:-verbose}
 
 #
 # List of dns-over-https servers

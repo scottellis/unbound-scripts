@@ -4,9 +4,9 @@ I am using unbound with [OpenBSD][openbsd]. The scripts and configs are not inte
 
 The script *blocklist.sh* will fetch, parse and consolidate [DoH][doh], advertising and malware blocklists and format for use in [unbound(8)][unbound].
 
-There are some example [unbound.conf(5)][unbound-conf] files to assist getting started.
-
 The *ftp* command in the *blocklist.sh* script will need a replacement (curl, wget) for non-OpenBSD systems.
+
+There are some example [unbound.conf(5)][unbound-conf] files to assist getting started.
 
 The blocklists tend to come in one of two formats:
 
@@ -27,6 +27,36 @@ for each entry in the blocklist.
 
 A response type of *static* can be used instead of *always_nxdomain*.
 See the *local-zone* section of [unbound.conf(5)][unbound-conf] for details.
+
+It takes only a few seconds to download sources and format a blocklist file.
+
+    scott@black:~$ ./blocklist.sh
+    Fetching https://jumpnowtek.com/downloads/doh_servers.txt
+    Fetching https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
+    Fetching https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt
+    Fetching https://mirror1.malwaredomains.com/files/justdomains
+    Fetching https://v.firebog.net/hosts/Easyprivacy.txt
+    Fetching https://v.firebog.net/hosts/Prigent-Ads.txt
+    Fetching https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-blocklist.txt
+    Fetching https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt
+    Fetching https://v.firebog.net/hosts/AdguardDNS.txt
+    Fetching http://sysctl.org/cameleon/hosts
+    Fetching https://adaway.org/hosts.txt
+    Fetching https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+    Fetching https://raw.githubusercontent.com/BartsPrivacy/PrivacyHostList/master/BlockHosts-Facebook.txt
+    Fetching https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt
+    Wrote file: /tmp/blocklist.conf
+
+    scott@black:~$ wc -l /tmp/blocklist.conf
+      177865 /tmp/blocklist.conf
+
+    scott@black:~$ head -5 /tmp/blocklist.conf
+    local-zone: "-rotation.de" always_nxdomain
+    local-zone: "-traffic.com" always_nxdomain
+    local-zone: "0-act.channel.facebook.com" always_nxdomain
+    local-zone: "0-edge-chat.facebook.com" always_nxdomain
+    local-zone: "0.0.0.0.beeglivesex.com" always_nxdomain
+
 
 If satisfied with the result, copy the list to a more permanent location. I use */var/unbound/etc/blocklist.conf*.
 
@@ -76,7 +106,7 @@ Then create the file and restart syslogd
 
 And now you can just watch */var/log/unbound*
 
-    scott@black:~$ tail -f /var/log/unbound                                                              
+    scott@black:~$ tail -f /var/log/unbound
     May 23 08:05:09 black unbound: [93172:0] info: 192.168.10.8 b.thumbs.redditmedia.com. A IN NOERROR 0.000000 0 93
     May 23 08:05:09 black unbound: [93172:0] info: 192.168.10.8 b.thumbs.redditmedia.com. AAAA IN NOERROR 0.000000 0 135
     May 23 08:05:09 black unbound: [93172:0] info: 192.168.10.8 a.thumbs.redditmedia.com. A IN NOERROR 0.000000 0 93
@@ -99,7 +129,7 @@ And now you can just watch */var/log/unbound*
     May 23 08:06:37 black unbound: [93172:0] info: 192.168.10.8 i.forbesimg.com. AAAA IN NOERROR 0.114647 0 132
 
 
-You can get some stats from unbound with [unbound-control(8)][unbound-control] with a *stats* or *stats_noreset* argument. 
+You can get some stats from unbound with [unbound-control(8)][unbound-control] with a *stats* or *stats_noreset* argument.
 
 And you can also enable *extended-statistics* in [unbound.conf(5)][unbound-conf].
 
@@ -124,7 +154,7 @@ Here is an example
 
 To see more of what I am interested in (and because Perl is part of base) I wrote a small Perl script.
 
-    scott@black:~$ blockstats.pl  
+    scott@black:~$ blockstats.pl
 
     ==== Query Summary ====
         Total: 4380
