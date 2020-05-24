@@ -2,10 +2,10 @@
 #
 # %stats is a hash of hashes with the following structure
 #
-# $stats{host_ip or all}{ 'total' => <count>,
-#                         'success' => <count>,
-#                         'blocked' => <count>,
-#                         'fail' => <count> }
+# $stats{host_ip or 'total'}{ 'queries' => <count>,
+#                             'success' => <count>,
+#                             'block' => <count>,
+#                             'fail' => <count> }
 
 my $log = "/var/log/unbound";
 
