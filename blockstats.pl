@@ -16,26 +16,26 @@ my %stats = ( total => { queries => 0, success => 0, block => 0, fail => 0 } );
 
 open(FILE, $log) || die "Could not open $log\n";
 
-LINE: while (<FILE>) {
+while (<FILE>) {
     my @fields = split;
 
     my $len = scalar(@fields);
 
     # skip log entries that are not query responses
-    next LINE if $len != 15;
+    next unless $len == 15;
 
     # skip noscript-csp.invalid, WTF is this?
     # stop these queries on the workstation running Firefox with NoScript
     # e.g. a /etc/hosts entry like this
     # 127.0.0.1  noscript-csp.invalid
     # this line can be removed after that change
-    next LINE if ($fields[8] =~ /noscript-csp.invalid/);
+    next unless $fields[8] !~ /noscript-csp.invalid/;
 
     # skip my local domain
-    next LINE if ($fields[8] =~ /jumpnow.$/);
+    next unless $fields[8] !~ /jumpnow.$/;
 
     # skip Chrome's non-existent domain requests (no '.' in hostname)
-    next LINE if ($fields[8] !~ /\.\w+/);
+    next unless $fields[8] =~ /\.\w+/;
 
     $stats{'total'}{'queries'}++;
 
