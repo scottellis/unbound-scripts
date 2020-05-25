@@ -32,7 +32,7 @@ See the *local-zone* section of [unbound.conf(5)][unbound-conf] for details.
 
 It takes only a few seconds to download sources and format a blocklist file.
 
-    scott@black:~$ ./blocklist.sh
+    scott@black:~$ time blocklist.sh                                                                                                                          
     Fetching https://jumpnowtek.com/downloads/doh_servers.txt
     Fetching https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
     Fetching https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt
@@ -46,11 +46,12 @@ It takes only a few seconds to download sources and format a blocklist file.
     Fetching https://adaway.org/hosts.txt
     Fetching https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
     Fetching https://raw.githubusercontent.com/BartsPrivacy/PrivacyHostList/master/BlockHosts-Facebook.txt
+    Fetching https://raw.githubusercontent.com/jmdugan/blocklists/master/corporations/facebook/all
     Fetching https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt
     Wrote file: /tmp/blocklist.conf
+      179835 /tmp/blocklist.conf
+        0m15.30s real     0m06.65s user     0m00.80s system
 
-    scott@black:~$ wc -l /tmp/blocklist.conf
-      177865 /tmp/blocklist.conf
 
     scott@black:~$ head -5 /tmp/blocklist.conf
     local-zone: "-rotation.de" always_nxdomain
@@ -156,47 +157,129 @@ Here is an example
 
 To see more of what I am interested in (and because Perl is part of base) I wrote a small Perl script.
 
-    scott@black:~$ blockstats.pl
+    scott@black:~$ ./blockstats.pl                                                                                                                            
+    
+    ==== Host Query Summaries ====
+    
+    192.168.10.11
+        Queries: 48
+        Success: 42 (87.5%)
+        Blocked: 0 (0.0%)
+         Failed: 6 (12.5%)
 
-    ==== Query Summary ====
-        Total: 4380
-      Success: 3489 (79.7%)
-      Blocked: 519 (11.8%)
-       Failed: 372 (8.5%)
+    192.168.10.112
+        Queries: 625
+        Success: 487 (77.9%)
+        Blocked: 127 (20.3%)
+         Failed: 11 (1.8%)
 
-    ==== Blocked Hosts ====
-    www.googletagmanager.com : 132
+    192.168.10.221
+        Queries: 8
+        Success: 8 (100.0%)
+        Blocked: 0 (0.0%)
+         Failed: 0 (0.0%)
+
+    192.168.10.8
+        Queries: 6736
+        Success: 5625 (83.5%)
+        Blocked: 726 (10.8%)
+         Failed: 385 (5.7%)
+
+    192.168.10.90
+        Queries: 186
+        Success: 174 (93.5%)
+        Blocked: 0 (0.0%)
+         Failed: 12 (6.5%)
+
+    total
+        Queries: 7603
+        Success: 6336 (83.3%)
+        Blocked: 853 (11.2%)
+         Failed: 414 (5.4%)
+
+    ==== Blocked Targets ====
+    
+    www.googletagmanager.com : 236
     use.typekit.net : 102
-    vjs.zencdn.net : 46
-    googleads.g.doubleclick.net : 42
+    googleads.g.doubleclick.net : 99
+    vjs.zencdn.net : 54
+    ssc.api.bbc.com : 30
     c.betrad.com : 20
     fls-na.amazon.com : 20
+    sb.scorecardresearch.com : 20
+    app-measurement.com : 19
     www.myfinance.com : 18
+    www.googleadservices.com : 16
     cloudfront-us-east-1.images.arcpublishing.com : 16
-    sb.scorecardresearch.com : 16
-    ssc.api.bbc.com : 12
+    pixiedust.buzzfeed.com : 12
+    www.facebook.com : 11
     alb.reddit.com : 10
     fm.cnbc.com : 10
+    www.google-analytics.com : 9
+    adservice.google.com : 9
+    i.clean.gg : 8
+    _http._tcp.security.ubuntu.com : 8
     assets.adobedtm.com : 8
+    _http._tcp.dl.google.com : 8
     dashboard.tinypass.com : 7
     mps.cnbc.com : 7
     x-default-stgec.uplynk.com : 6
+    s.skimresources.com : 6
+    ad.doubleclick.net : 6
+    cdn.adligature.com : 6
     piwik.ssrn.com : 6
-    www.facebook.com : 6
-    eepurl.com : 4
+    k.intellitxt.com : 4
+    static.doubleclick.net : 4
+    ecdn.firstimpression.io : 4
+    ecdn.analysis.fi : 4
+    api-cdn.embed.ly : 4
+    secure.quantserve.com : 4
     platform-api.sharethis.com : 4
-    www.googleadservices.com : 4
-    _http._tcp.dl.google.com : 4
-    www.google-analytics.com : 4
-    _http._tcp.security.ubuntu.com : 4
-    cdn.appdynamics.com : 2
+    apps.shareaholic.com : 4
+    eepurl.com : 4
+    facebook.com : 4
+    contextual.media.net : 3
+    instagram.fbed1-2.fna.fbcdn.net : 3
+    connect.facebook.net : 2
+    graph.instagram.com : 2
+    unix-school.blogspot.in : 2
     js-agent.newrelic.com : 2
-    facebook.com : 2
-    13.111.102.109.in-addr.arpa : 1
-    beacons.gcp.gvt2.com : 1
+    jsc.mgid.com : 2
+    cdn.appdynamics.com : 2
+    resources.infolinks.com : 2
+    p2-aowfwwrqfrjv6-sl672iw4vjkoqfyg-if-v6exp3-v4.metric.gstatic.com : 1
     img.en25.com : 1
-    static.doubleclick.net : 1
+    4968236.fls.doubleclick.net : 1
+    beacons.gcp.gvt2.com : 1
+    13.111.102.109.in-addr.arpa : 1
     21.143.101.141.in-addr.arpa : 1
+
+    ==== Failed Targets ====
+
+    push.services.mozilla.com : 112
+    webql-redesign.cnbcfm.com : 80
+    www.bbc.com : 36
+    news.ycombinator.com : 36
+    safebrowsing.googleapis.com : 25
+    support.mozilla.org : 24
+    ocsp.pki.goog : 24
+    shavar.services.mozilla.com : 16
+    android.googleapis.com : 9
+    audio-sv5-t1-2-v4v6.pandora.com : 8
+    lists.yoctoproject.org : 8
+    www.netflix.com : 7
+    www.fuelcdn.com : 6
+    pool.ntp.org : 6
+    t1-4.p-cdn.us : 4
+    quote.cnbc.com : 4
+    fonts.gstatic.com : 2
+    www.google.com : 2
+    mtalk4.google.com : 2
+    clientservices.googleapis.com : 2
+    google.com : 1
+
+
+Those 'Failed Targets' are mainly the result of an internet interruption while I was testing.
 
 
 [unbound]: https://man.openbsd.org/unbound
