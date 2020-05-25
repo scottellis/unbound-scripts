@@ -26,6 +26,7 @@ hosts_format="\
     https://adaway.org/hosts.txt \
     https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts \
     https://raw.githubusercontent.com/BartsPrivacy/PrivacyHostList/master/BlockHosts-Facebook.txt \
+    https://raw.githubusercontent.com/jmdugan/blocklists/master/corporations/facebook/all \
     https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt \
 "
 
@@ -97,5 +98,6 @@ sort -fu $tmpfile \
 rm -f $tmpfile
 
 [ $verbose == "verbose" ] && echo "Wrote file: $blocklist"
+[ $verbose == "verbose" ] && wc -l $blocklist
 
 exit 0
