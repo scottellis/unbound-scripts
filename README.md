@@ -106,8 +106,14 @@ Then create the file and restart syslogd
     # touch /var/log/unbound
     # rcctl restart syslogd
 
+Add a line to */etc/newsyslog.conf* so [newsyslog(8)][newsyslog] properly rotates the new log file.
 
-And now you can just watch */var/log/unbound*
+Here I am rotating the unbound log when it reaches 2MB and keeping 5 older copies in compressed format.
+
+    /var/log/unbound			640  5     2000 *     Z
+
+
+After that you can just watch */var/log/unbound*
 
     scott@black:~$ tail -f /var/log/unbound
     May 23 08:05:09 black unbound: [93172:0] info: 192.168.10.8 b.thumbs.redditmedia.com. A IN NOERROR 0.000000 0 93
@@ -155,10 +161,9 @@ Here is an example
     num.answer.bogus=0
 
 
-To see more of what I am interested in (and because Perl is part of base) I wrote a small Perl script.
+To see a little more of what I am interested in I wrote a small Perl script.
 
     scott@black:~$ ./blockstats.pl                                                                                                                            
-    
     ==== Host Query Summaries ====
     
     192.168.10.11
@@ -288,3 +293,4 @@ Those 'Failed Targets' are mainly the result of an internet interruption while I
 [openbsd]: https://openbsd.org
 [doh]: https://en.wikipedia.org/wiki/DNS_over_HTTPS
 [syslog-conf]: https://man.openbsd.org/syslog.conf.5
+[newsyslog]: https://man.openbsd.org/newsyslog.conf
