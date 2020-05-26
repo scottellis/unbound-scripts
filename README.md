@@ -8,7 +8,7 @@ The script *blocklist.sh* will fetch, parse and consolidate the [DoH][doh], adve
 
 The *ftp* command in the *blocklist.sh* script will need a replacement (probably curl, wget) for non-OpenBSD systems.
 
-There are some example [unbound.conf(5)][unbound-conf] files provided. 
+There are some example [unbound.conf(5)][unbound-conf] files provided.
 
 The blocklists I am using tend to come in one of two formats:
 
@@ -32,7 +32,7 @@ See the *local-zone* section of [unbound.conf(5)][unbound-conf] for details.
 
 It takes only a few seconds to download sources and format a blocklist file.
 
-    scott@black:~$ time blocklist.sh                                                                                                                          
+    scott@black:~$ time blocklist.sh
     Fetching https://jumpnowtek.com/downloads/doh_servers.txt
     Fetching https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
     Fetching https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt
@@ -163,128 +163,78 @@ Here is an example
 
 To see a little more of what I am interested in I wrote a small Perl script.
 
-    scott@black:~$ ./blockstats.pl                                                                                                                            
-    ==== Host Query Summaries ====
-    
-    192.168.10.11
-        Queries: 48
-        Success: 42 (87.5%)
-        Blocked: 0 (0.0%)
-         Failed: 6 (12.5%)
+    scott@black:~$ ./blockstats.pl
 
-    192.168.10.112
-        Queries: 625
-        Success: 487 (77.9%)
-        Blocked: 127 (20.3%)
-         Failed: 11 (1.8%)
+    ======== Query Summaries by Host ========
 
-    192.168.10.221
-        Queries: 8
-        Success: 8 (100.0%)
+    192.168.10.107
+        Queries: 7
+        Success: 7 (100.0%)
         Blocked: 0 (0.0%)
          Failed: 0 (0.0%)
 
-    192.168.10.8
-        Queries: 6736
-        Success: 5625 (83.5%)
-        Blocked: 726 (10.8%)
-         Failed: 385 (5.7%)
-
-    192.168.10.90
-        Queries: 186
-        Success: 174 (93.5%)
+    192.168.10.11
+        Queries: 41
+        Success: 41 (100.0%)
         Blocked: 0 (0.0%)
-         Failed: 12 (6.5%)
+         Failed: 0 (0.0%)
+
+    192.168.10.112
+        Queries: 24
+        Success: 17 (70.8%)
+        Blocked: 7 (29.2%)
+         Failed: 0 (0.0%)
+
+    192.168.10.25
+        Queries: 614
+        Success: 245 (39.9%)
+        Blocked: 365 (59.4%)
+         Failed: 4 (0.7%)
+
+    192.168.10.8
+        Queries: 182
+        Success: 162 (89.0%)
+        Blocked: 20 (11.0%)
+         Failed: 0 (0.0%)
 
     total
-        Queries: 7603
-        Success: 6336 (83.3%)
-        Blocked: 853 (11.2%)
-         Failed: 414 (5.4%)
+        Queries: 868
+        Success: 472 (54.4%)
+        Blocked: 392 (45.2%)
+         Failed: 4 (0.5%)
 
-    ==== Blocked Targets ====
-    
-    www.googletagmanager.com : 236
-    use.typekit.net : 102
-    googleads.g.doubleclick.net : 99
-    vjs.zencdn.net : 54
-    ssc.api.bbc.com : 30
-    c.betrad.com : 20
-    fls-na.amazon.com : 20
-    sb.scorecardresearch.com : 20
-    app-measurement.com : 19
-    www.myfinance.com : 18
-    www.googleadservices.com : 16
-    cloudfront-us-east-1.images.arcpublishing.com : 16
-    pixiedust.buzzfeed.com : 12
-    www.facebook.com : 11
-    alb.reddit.com : 10
-    fm.cnbc.com : 10
+    ======== Failed Targets ========
+    secure.whatcounts.com : 4
+
+    ======== Blocked Targets ========
+    trk.pinterest.com : 30
+    vjs.zencdn.net : 18
     www.google-analytics.com : 9
-    adservice.google.com : 9
-    i.clean.gg : 8
-    _http._tcp.security.ubuntu.com : 8
-    assets.adobedtm.com : 8
-    _http._tcp.dl.google.com : 8
-    dashboard.tinypass.com : 7
-    mps.cnbc.com : 7
-    x-default-stgec.uplynk.com : 6
-    s.skimresources.com : 6
-    ad.doubleclick.net : 6
-    cdn.adligature.com : 6
-    piwik.ssrn.com : 6
-    k.intellitxt.com : 4
-    static.doubleclick.net : 4
-    ecdn.firstimpression.io : 4
-    ecdn.analysis.fi : 4
-    api-cdn.embed.ly : 4
-    secure.quantserve.com : 4
-    platform-api.sharethis.com : 4
-    apps.shareaholic.com : 4
-    eepurl.com : 4
-    facebook.com : 4
-    contextual.media.net : 3
-    instagram.fbed1-2.fna.fbcdn.net : 3
-    connect.facebook.net : 2
-    graph.instagram.com : 2
-    unix-school.blogspot.in : 2
-    js-agent.newrelic.com : 2
-    jsc.mgid.com : 2
-    cdn.appdynamics.com : 2
-    resources.infolinks.com : 2
-    p2-aowfwwrqfrjv6-sl672iw4vjkoqfyg-if-v6exp3-v4.metric.gstatic.com : 1
-    img.en25.com : 1
-    4968236.fls.doubleclick.net : 1
-    beacons.gcp.gvt2.com : 1
-    13.111.102.109.in-addr.arpa : 1
-    21.143.101.141.in-addr.arpa : 1
+    www.googletagmanager.com : 9
+    c.amazon-adsystem.com : 8
+    www.googletagservices.com : 8
+    connect.facebook.net : 8
+    securepubads.g.doubleclick.net : 7
+    ib.adnxs.com : 6
+    as-sec.casalemedia.com : 6
+    ...
 
-    ==== Failed Targets ====
+    ======== Success Targets ========
+    duckduckgo.com : 41
+    pool.ntp.org : 36
+    fonts.googleapis.com : 11
+    icons.duckduckgo.com : 10
+    fonts.gstatic.com : 10
+    safebrowsing.googleapis.com : 9
+    ocsp.pki.goog : 8
+    ocsp.digicert.com : 7
+    api-global.squareup.com : 7
+    www.google.com : 7
+    ocsp.int-x3.letsencrypt.org : 6
+    push.services.mozilla.com : 6
+    ...
 
-    push.services.mozilla.com : 112
-    webql-redesign.cnbcfm.com : 80
-    www.bbc.com : 36
-    news.ycombinator.com : 36
-    safebrowsing.googleapis.com : 25
-    support.mozilla.org : 24
-    ocsp.pki.goog : 24
-    shavar.services.mozilla.com : 16
-    android.googleapis.com : 9
-    audio-sv5-t1-2-v4v6.pandora.com : 8
-    lists.yoctoproject.org : 8
-    www.netflix.com : 7
-    www.fuelcdn.com : 6
-    pool.ntp.org : 6
-    t1-4.p-cdn.us : 4
-    quote.cnbc.com : 4
-    fonts.gstatic.com : 2
-    www.google.com : 2
-    mtalk4.google.com : 2
-    clientservices.googleapis.com : 2
-    google.com : 1
-
-
-Those 'Failed Targets' are mainly the result of an internet interruption while I was testing.
+Too much data reported by that script right now, but not sure yet how I want to filter so I don't miss the important stuff.
 
 
 [unbound]: https://man.openbsd.org/unbound

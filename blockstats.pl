@@ -93,7 +93,7 @@ while (<FILE>) {
 
 close(FILE);
 
-print("\n==== Host Query Summaries ====\n");
+print("\n======== Query Summaries by Host ========\n");
 
 foreach my $host (sort keys %stats) {
     my $queries = $stats{$host}{'queries'};
@@ -108,23 +108,18 @@ foreach my $host (sort keys %stats) {
     printf("     Failed: %d (%.1f%%)\n", $fail, (100.0 * $fail) / $queries);
 }
 
-print("\n==== Blocked Targets ====\n\n");
+sub dump_targets {
+    my $prompt = shift;
+    my $hash = shift;
 
-# sort blocked targets in count descending order
-my @sorted_hosts = sort { $nxdomain{$b} <=> $nxdomain{$a} } keys %nxdomain;
+    print("\n======== $prompt Targets ========\n");
+    @sorted_hosts = sort { $hash->{$b} <=> $hash->{$a} } keys %{$hash};
 
-foreach my $host (@sorted_hosts) {
-    print("$host : $nxdomain{$host}\n");
+    foreach my $host (@sorted_hosts) {
+        print("$host : $hash->{$host}\n");
+    }
 }
 
-print("\n==== Failed Targets ====\n\n");
-
-# sort failed targets in count descending order
-@sorted_hosts = sort { $servfail{$b} <=> $servfail{$a} } keys %servfail;
-
-foreach my $host (@sorted_hosts) {
-    print("$host : $servfail{$host}\n");
-}
-
-print("\n");
-
+dump_targets('Failed', \%servfail);
+dump_targets('Blocked', \%nxdomain);
+dump_targets('Success', \%noerror);
