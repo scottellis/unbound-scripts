@@ -28,6 +28,9 @@ hosts_format="\
     https://raw.githubusercontent.com/BartsPrivacy/PrivacyHostList/master/BlockHosts-Facebook.txt \
     https://raw.githubusercontent.com/jmdugan/blocklists/master/corporations/facebook/all \
     https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt \
+    https://www.github.developerdan.com/hosts/lists/ads-and-tracking-extended.txt \
+    https://www.github.developerdan.com/hosts/lists/facebook-extended.txt \
+    https://www.github.developerdan.com/hosts/lists/amp-hosts-extended.txt \
 "
 
 #
@@ -48,8 +51,16 @@ simple_format="\
 # Fetch and strip comments, blank lines and trailing white space
 #
 function fetch_and_strip {
-  ftp -VMo - $1 | \
-      sed -e 's/#.*$//' -e '/^[[:space:]]*$/d' -e 's/[[:space:]]*$//'
+    os=$(uname)
+
+    if [ $os == "OpenBSD" ]; then
+        ftp -VMo - $1 | sed -e 's/#.*$//' -e '/^[[:space:]]*$/d' -e 's/[[:space:]]*$//'
+    elif [ $os == "Linux" ]; then
+        curl -s $1 | sed -e 's/#.*$//' -e '/^[[:space:]]*$/d' -e 's/[[:space:]]*$//'
+    else
+        echo "Unhandled O/S: $os"
+        exit 1
+    fi
 }
 
 #
