@@ -14,6 +14,26 @@ my %nxdomain;
 my %servfail;
 my %stats = ( total => { queries => 0, success => 0, block => 0, fail => 0 } );
 
+my @valid_cmds = ("all", "hosts", "failed", "blocked", "success");
+
+my $cmd = "all";
+
+my $num_args = $#ARGV + 1;
+
+if ($num_args > 0) {
+    $cmd = $ARGV[0];
+
+    my $count = grep { /$cmd/ } @valid_cmds;
+
+    if ($count != 1) {
+        print("Unknown command: $cmd\n");
+        print("\nUsage: blockstats.pl [cmd]\n");
+        print("  cmds: all, hosts, failed, blocked, success\n");
+        print("  default is all\n");
+        exit 1;
+    }
+}
+
 open(FILE, $log) || die "Could not open $log\n";
 
 while (<FILE>) {
@@ -93,33 +113,59 @@ while (<FILE>) {
 
 close(FILE);
 
-print("\n======== Query Summaries by Host ========\n");
+sub dump_hosts {
+    my $hash = shift;
 
-foreach my $host (sort keys %stats) {
-    my $queries = $stats{$host}{'queries'};
-    my $success = $stats{$host}{'success'};
-    my $block = $stats{$host}{'block'};
-    my $fail = $stats{$host}{'fail'};
+    if ($cmd eq 'all') {
+        print("\n======== Query Summaries by Host ========\n");
+    }
 
-    print("\n$host\n");
-    printf("    Queries: %d\n", $queries);
-    printf("    Success: %d (%.1f%%)\n", $success, (100.0 * $success) / $queries);
-    printf("    Blocked: %d (%.1f%%)\n", $block, (100.0 * $block) / $queries);
-    printf("     Failed: %d (%.1f%%)\n", $fail, (100.0 * $fail) / $queries);
+    foreach my $host (sort keys %{$hash}) {
+        my $queries = $hash->{$host}{'queries'};
+        my $success = $hash->{$host}{'success'};
+        my $block = $hash->{$host}{'block'};
+        my $fail = $hash->{$host}{'fail'};
+
+        if ($cmd eq 'all') {
+            print("\n$host\n");
+            printf("    Queries: %d\n", $queries);
+            printf("    Success: %d (%.1f%%)\n", $success, (100.0 * $success) / $queries);
+            printf("    Blocked: %d (%.1f%%)\n", $block, (100.0 * $block) / $queries);
+            printf("     Failed: %d (%.1f%%)\n", $fail, (100.0 * $fail) / $queries);
+        }
+        else {
+            print("$host $queries $success $block $fail\n");
+        }
+    }
 }
 
 sub dump_targets {
     my $prompt = shift;
     my $hash = shift;
 
-    print("\n======== $prompt Targets ========\n");
     @sorted_hosts = sort { $hash->{$b} <=> $hash->{$a} } keys %{$hash};
 
+    if ($cmd eq 'all') {
+        print("\n======== $prompt Targets ========\n");
+    }
+
     foreach my $host (@sorted_hosts) {
-        print("$host : $hash->{$host}\n");
+        print("$hash->{$host} $host\n");
     }
 }
 
-dump_targets('Failed', \%servfail);
-dump_targets('Blocked', \%nxdomain);
-dump_targets('Success', \%noerror);
+if ($cmd eq "all" || $cmd eq "hosts") {
+    dump_hosts(\%stats);
+}
+
+if ($cmd eq "all" || $cmd eq "failed") {
+    dump_targets('Failed', \%servfail);
+}
+
+if ($cmd eq "all" || $cmd eq "blocked") {
+    dump_targets('Blocked', \%nxdomain);
+}
+
+if ($cmd eq "success") {
+    dump_targets('Success', \%noerror);
+}
