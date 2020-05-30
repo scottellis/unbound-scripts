@@ -14,9 +14,9 @@ my %nxdomain;
 my %servfail;
 my %stats = ( total => { queries => 0, success => 0, block => 0, fail => 0 } );
 
-my @valid_cmds = ("all", "hosts", "failed", "blocked", "success");
+my @valid_cmds = ("summary", "hosts", "failed", "blocked", "success");
 
-my $cmd = "all";
+my $cmd = "summary";
 
 my $num_args = $#ARGV + 1;
 
@@ -116,7 +116,7 @@ close(FILE);
 sub dump_hosts {
     my $hash = shift;
 
-    if ($cmd eq 'all') {
+    if ($cmd eq 'summary') {
         print("\n======== Query Summaries by Host ========\n");
     }
 
@@ -126,7 +126,7 @@ sub dump_hosts {
         my $block = $hash->{$host}{'block'};
         my $fail = $hash->{$host}{'fail'};
 
-        if ($cmd eq 'all') {
+        if ($cmd eq 'summary') {
             print("\n$host\n");
             printf("    Queries: %d\n", $queries);
             printf("    Success: %d (%.1f%%)\n", $success, (100.0 * $success) / $queries);
@@ -143,29 +143,38 @@ sub dump_targets {
     my $prompt = shift;
     my $hash = shift;
 
-    @sorted_hosts = sort { $hash->{$b} <=> $hash->{$a} } keys %{$hash};
+    @sorted_targets = sort { $hash->{$b} <=> $hash->{$a} } keys %{$hash};
 
-    if ($cmd eq 'all') {
-        print("\n======== $prompt Targets ========\n");
+    if ($cmd eq 'summary') {
+        print("\n======== Top 10 $prompt Targets ========\n");
+
+        my $count = 0;
+
+        foreach my $target (@sorted_targets) {
+            print("$hash->{$target} $target\n");
+            $count++;
+            last if ($count == 10);
+        }
     }
-
-    foreach my $host (@sorted_hosts) {
-        print("$hash->{$host} $host\n");
+    else {
+        foreach my $target (@sorted_targets) {
+            print("$hash->{$target} $target\n");
+        }
     }
 }
 
-if ($cmd eq "all" || $cmd eq "hosts") {
+if ($cmd eq 'summary' || $cmd eq 'hosts') {
     dump_hosts(\%stats);
 }
 
-if ($cmd eq "all" || $cmd eq "failed") {
+if ($cmd eq 'summary' || $cmd eq 'failed') {
     dump_targets('Failed', \%servfail);
 }
 
-if ($cmd eq "all" || $cmd eq "blocked") {
+if ($cmd eq 'summary' || $cmd eq 'blocked') {
     dump_targets('Blocked', \%nxdomain);
 }
 
-if ($cmd eq "success") {
+if ($cmd eq 'summary' || $cmd eq 'success') {
     dump_targets('Success', \%noerror);
 }
