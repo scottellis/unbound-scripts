@@ -68,6 +68,10 @@ function fetch_and_strip {
     fi
 }
 
+function lower_sort_uniq {
+    cat $1 | tr '[:upper:]' '[:lower:]' | sort -u
+}
+
 #
 # Add the canary domain used by Mozilla to check if DOH should be used
 #
@@ -79,8 +83,8 @@ for list in $simple_format; do
 done
 
 #
-# Grab the second field in each line from these lists if the first field
-# is an ipv4 address
+# Grab the second field in each line from these lists but only if the first
+# field is an ipv4 address
 #
 for list in $hosts_format; do
     echo "Fetching $list"
@@ -94,11 +98,13 @@ done
 #
 # Sort and remove duplicates
 #
-sort -fu $tmpfile > /tmp/blacklist
+# cat $tmpfile | tr '[:upper:]' '[:lower:]' | sort -u > /tmp/blacklist
+lower_sort_uniq $tmpfile > /tmp/blacklist
+
 rm -f $tmpfile
 
 #
-# if we have a whitelist with some entries, make sure it is sorted
+# if we have a whitelist with some entries, make sure it is lower case and sorted
 # then remove those lines from the blacklist
 #
 if [ -z $whitelist ]; then
@@ -109,7 +115,8 @@ elif [ -f $whitelist ]; then
 
     if [ $count -gt 0 ]; then
         echo "Removing whitelisted items"
-        sort -fu $whitelist > /tmp/whitelist
+        # cat $whitelist | tr '[:upper:]' '[:lower:]' | sort -u > /tmp/whitelist
+        lower_sort_uniq $whitelist > /tmp/whitelist
         comm -23 /tmp/blacklist /tmp/whitelist > /tmp/final
     fi
 fi
