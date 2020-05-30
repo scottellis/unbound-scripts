@@ -1,27 +1,29 @@
 #!/bin/sh
 #
-# Run with 'verbose' as an argument to see progress
+# Works with ksh and bash, but not dash.
+#
+# Can be run with bash explicitly like this
+#
+#   $ bash fetchlists.sh
+#
+# Leaving some intermediary files in /tmp for testing during dev
 #
 
 tmpfile=$(mktemp)
 
 blocklist="/tmp/blocklist.conf"
 
-verbose=${1:-verbose}
-
-#
-# List of dns-over-https servers
-#
-doh_servers="\
-    https://jumpnowtek.com/downloads/doh_servers.txt \
-" 
+if [ ! -z $1 ]; then
+    whitelist=$1
+fi
 
 #
 # For lists in /etc/hosts format like this
-# 127.0.0.1 aaa.com 
-# 0.0.0.0   bbb.com 
-# 
+# 127.0.0.1 aaa.com
+# 0.0.0.0   bbb.com
+#
 hosts_format="\
+    https://jumpnowtek.com/downloads/doh_servers.txt \
     http://sysctl.org/cameleon/hosts \
     https://adaway.org/hosts.txt \
     https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts \
@@ -34,8 +36,8 @@ hosts_format="\
 "
 
 #
-# For simple lists with just the domain name 
-# 
+# For simple lists with just the domain name
+#
 simple_format="\
     https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt \
     https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt \
@@ -49,6 +51,9 @@ simple_format="\
 
 #
 # Fetch and strip comments, blank lines and trailing white space
+#
+# Use ftp from base on OpenBSD
+# Assume curl on Linux
 #
 function fetch_and_strip {
     os=$(uname)
@@ -64,51 +69,59 @@ function fetch_and_strip {
 }
 
 #
-# Add canary domain to block DNS over HTTPS (DOH)
+# Add the canary domain used by Mozilla to check if DOH should be used
 #
 echo 'use-application-dns.net' >> $tmpfile
 
-for list in $doh_servers; do
-    [ $verbose == "verbose" ] && echo "Fetching $list"
-    fetch_and_strip $list >> $tmpfile
-done
-
-
 for list in $simple_format; do
-    [ $verbose == "verbose" ] && echo "Fetching $list"
+    echo "Fetching $list"
     fetch_and_strip $list >> $tmpfile
 done
 
 #
-# Ugly special cases..., need a whitelist
+# Grab the second field in each line from these lists if the first field
+# is an ipv4 address
 #
 for list in $hosts_format; do
-    [ $verbose == "verbose" ] && echo "Fetching $list"
+    echo "Fetching $list"
+
     fetch_and_strip $list \
         | egrep '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' \
         | awk '{ print $2 }' \
-        | egrep -v '^broadcasthost$' \
-        | egrep -v '^local$' \
-        | egrep -v '^localhost\.localdomain$' \
-        | egrep -v '^0\.0\.0\.0$' \
         >> $tmpfile
 done
 
+#
+# Sort and remove duplicates
+#
+sort -fu $tmpfile > /tmp/blacklist
+rm -f $tmpfile
 
 #
-# Sort, remove duplicates, then output in unbound.conf format
+# if we have a whitelist with some entries, make sure it is sorted
+# then remove those lines from the blacklist
+#
+if [ -z $whitelist ]; then
+    mv /tmp/blacklist /tmp/final
+
+elif [ -f $whitelist ]; then
+    count=$(wc -l $whitelist | awk '{ print $1 }')
+
+    if [ $count -gt 0 ]; then
+        echo "Removing whitelisted items"
+        sort -fu $whitelist > /tmp/whitelist
+        comm -23 /tmp/blacklist /tmp/whitelist > /tmp/final
+    fi
+fi
+
+#
+# Output in unbound.conf format
 #
 # Possible response types can be found in unbound.conf(5) in the local-zone
 # section. Some options are 'static', 'always_nxdomain', 'refuse', 'deny'
-#
-sort -fu $tmpfile \
-    | awk '{ print "local-zone: \"" $1 "\" always_nxdomain" }' \
-    > $blocklist
 
+cat /tmp/final | awk '{ print "local-zone: \"" $1 "\" always_nxdomain" }' > $blocklist
 
-rm -f $tmpfile
-
-[ $verbose == "verbose" ] && echo "Wrote file: $blocklist"
-[ $verbose == "verbose" ] && wc -l $blocklist
+wc -l $blocklist
 
 exit 0
