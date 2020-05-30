@@ -4,22 +4,26 @@ I am using [unbound(8)][unbound] with [OpenBSD][openbsd] to add some advertising
 
 The scripts and configs are not intended to be *OpenBSD* specific, but it is the only system where I am testing.
 
-The script *blocklist.sh* will fetch, parse and consolidate the [DoH][doh], advertising and malware blocklists and format them for use in *unbound*.
+The script *fetchlists.sh* will fetch, parse and consolidate the [DoH][doh], advertising and malware blocklists and format them for use in *unbound*.
 
-The *ftp* command in the *blocklist.sh* script will need a replacement (probably curl, wget) for non-OpenBSD systems.
+If you provide a whitelist file as an argument to *fetchlists.sh* it will remove those items from the resulting blocklist.
+
+The *fetchlists.sh* script uses the built-in *ftp* on OpenBSD. On Linux *curl* is required.
 
 There are some example [unbound.conf(5)][unbound-conf] files provided.
 
-The blocklists I am using tend to come in one of two formats:
+The blocklists I am using come in one of two formats:
 
-* host-format: 127.0.0.0 aaa.com or 0.0.0.0 bbb.com
+* hosts-file-format: 127.0.0.0 aaa.com or 0.0.0.0 bbb.com
 * simple-format: aaa.com
 
-There are three url lists in the script.
+There are two url lists in the script, one for each of the formats.
 
 Place new urls in the appropriate list so they are correctly handled.
 
-The script output gets saved to */tmp/blocklist*.
+**Note:** The default lists probably block more then you want.
+
+The *fetchlists.sh* output eventually gets saved to */tmp/blocklist.conf*.
 
 The output format is
 
@@ -61,7 +65,11 @@ It takes only a few seconds to download sources and format a blocklist file.
     local-zone: "0.0.0.0.beeglivesex.com" always_nxdomain
 
 
-If satisfied with the result, copy the list to a more permanent location. I use */var/unbound/etc/blocklist.conf*.
+If satisfied with the result, copy the list to a more permanent location.
+
+On OpenBSD I use */var/unbound/etc/blocklist.conf*.
+
+On *Yocto* built Linux systems I use */etc/unbound/blocklist.conf*.
 
 Then tell [unbound][unbound] to use the list with an [unbound.conf(5)][unbound-conf] include statement.
 
