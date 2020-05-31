@@ -40,18 +40,13 @@ while (<FILE>) {
     # skip log entries that are not query responses
     next unless $len == 15;
 
-    # skip noscript-csp.invalid, WTF is this?
-    # stop these queries on the workstation running Firefox with NoScript
-    # e.g. a /etc/hosts entry like this
-    # 127.0.0.1  noscript-csp.invalid
-    # this line can be removed after that change
-    next unless $fields[8] !~ /noscript-csp.invalid/;
+    my $dst = $fields[8];
 
-    # skip my local domain
-    next unless $fields[8] !~ /jumpnow.$/;
+    # remove trailing period
+    $dst =~ s/\.$//;
 
     # skip Chrome's non-existent domain requests (no '.' in hostname)
-    next unless $fields[8] =~ /\.\w+/;
+    next unless $dst =~ /\./;
 
     $stats{total}{queries}++;
 
@@ -63,9 +58,6 @@ while (<FILE>) {
     else {
         $stats{$src} = { queries => 1, success => 0, block => 0, fail => 0 };
     }
-
-    my $dst = $fields[8];
-    $dst =~ s/\.$//;
 
     my $response = $fields[11];
 
@@ -108,6 +100,22 @@ while (<FILE>) {
 }
 
 close(FILE);
+
+if ($cmd eq 'summary' || $cmd eq 'hosts') {
+    dump_hosts(\%stats);
+}
+
+if ($cmd eq 'summary' || $cmd eq 'failed') {
+    dump_targets('Failed', \%servfail);
+}
+
+if ($cmd eq 'summary' || $cmd eq 'blocked') {
+    dump_targets('Blocked', \%nxdomain);
+}
+
+if ($cmd eq 'summary' || $cmd eq 'success') {
+    dump_targets('Success', \%noerror);
+}
 
 sub dump_hosts {
     my $hash = shift;
@@ -157,20 +165,4 @@ sub dump_targets {
             print("$hash->{$target} $target\n");
         }
     }
-}
-
-if ($cmd eq 'summary' || $cmd eq 'hosts') {
-    dump_hosts(\%stats);
-}
-
-if ($cmd eq 'summary' || $cmd eq 'failed') {
-    dump_targets('Failed', \%servfail);
-}
-
-if ($cmd eq 'summary' || $cmd eq 'blocked') {
-    dump_targets('Blocked', \%nxdomain);
-}
-
-if ($cmd eq 'summary' || $cmd eq 'success') {
-    dump_targets('Success', \%noerror);
 }
