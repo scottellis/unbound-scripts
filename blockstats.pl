@@ -1,22 +1,18 @@
-#!/usr/bin/perl -w
-#
-# %stats is a hash of hashes with the following structure
-#
-# $stats{host_ip or 'total'}{ 'queries' => <count>,
-#                             'success' => <count>,
-#                             'block' => <count>,
-#                             'fail' => <count> }
+#!/usr/bin/perl -T
 
-my $log = "/var/log/unbound";
+use warnings;
+use strict;
+
+my $log = '/var/log/unbound';
 
 my %noerror;
 my %nxdomain;
 my %servfail;
 my %stats = ( total => { queries => 0, success => 0, block => 0, fail => 0 } );
 
-my @valid_cmds = ("summary", "hosts", "failed", "blocked", "success");
+my @valid_cmds = ('summary', 'hosts', 'failed', 'blocked', 'success');
 
-my $cmd = "summary";
+my $cmd = 'summary';
 
 my $num_args = $#ARGV + 1;
 
@@ -57,12 +53,12 @@ while (<FILE>) {
     # skip Chrome's non-existent domain requests (no '.' in hostname)
     next unless $fields[8] =~ /\.\w+/;
 
-    $stats{'total'}{'queries'}++;
+    $stats{total}{queries}++;
 
     my $src = $fields[7];
 
     if (exists($stats{$src})) {
-        $stats{$src}{'queries'}++;
+        $stats{$src}{queries}++;
     }
     else {
         $stats{$src} = { queries => 1, success => 0, block => 0, fail => 0 };
@@ -81,8 +77,8 @@ while (<FILE>) {
             $noerror{$dst} = 1;
         }
 
-        $stats{'total'}{'success'}++;
-        $stats{$src}{'success'}++;
+        $stats{total}{success}++;
+        $stats{$src}{success}++;
     }
     elsif ($response eq 'NXDOMAIN') {
         if (exists($nxdomain{$dst})) {
@@ -92,8 +88,8 @@ while (<FILE>) {
             $nxdomain{$dst} = 1;
         }
 
-        $stats{'total'}{'block'}++;
-        $stats{$src}{'block'}++;
+        $stats{total}{block}++;
+        $stats{$src}{block}++;
     }
     elsif ($response eq 'SERVFAIL') {
         if (exists($servfail{$dst})) {
@@ -103,8 +99,8 @@ while (<FILE>) {
             $servfail{$dst} = 1;
         }
 
-        $stats{'total'}{'fail'}++;
-        $stats{$src}{'fail'}++;
+        $stats{total}{fail}++;
+        $stats{$src}{fail}++;
     }
     else {
         print("Unhandled response type: $response\n");
@@ -121,10 +117,10 @@ sub dump_hosts {
     }
 
     foreach my $host (sort keys %{$hash}) {
-        my $queries = $hash->{$host}{'queries'};
-        my $success = $hash->{$host}{'success'};
-        my $block = $hash->{$host}{'block'};
-        my $fail = $hash->{$host}{'fail'};
+        my $queries = $hash->{$host}{queries};
+        my $success = $hash->{$host}{success};
+        my $block = $hash->{$host}{block};
+        my $fail = $hash->{$host}{fail};
 
         if ($cmd eq 'summary') {
             print("\n$host\n");
@@ -143,7 +139,7 @@ sub dump_targets {
     my $prompt = shift;
     my $hash = shift;
 
-    @sorted_targets = sort { $hash->{$b} <=> $hash->{$a} } keys %{$hash};
+    my @sorted_targets = sort { $hash->{$b} <=> $hash->{$a} } keys %{$hash};
 
     if ($cmd eq 'summary') {
         print("\n======== Top 10 $prompt Targets ========\n");
