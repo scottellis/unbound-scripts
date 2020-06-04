@@ -2,8 +2,7 @@
 
 use warnings;
 use strict;
-
-my $log = '/var/log/unbound';
+use Getopt::Long qw(GetOptions);
 
 my %noerror;
 my %nxdomain;
@@ -14,25 +13,19 @@ my @valid_cmds = ('summary', 'hosts', 'failed', 'blocked', 'success');
 
 my $cmd = 'summary';
 
-my $num_args = $#ARGV + 1;
+GetOptions('cmd=s' => \$cmd) or die "Bad options\n";
 
-if ($num_args > 0) {
-    $cmd = $ARGV[0];
+my $count = grep { /$cmd/ } @valid_cmds;
 
-    my $count = grep { /$cmd/ } @valid_cmds;
-
-    if ($count != 1) {
-        print("Unknown command: $cmd\n");
-        print("\nUsage: blockstats.pl [cmd]\n");
-        print("  cmds: all, hosts, failed, blocked, success\n");
-        print("  default is all\n");
-        exit 1;
-    }
+if ($count != 1) {
+    print("Unknown command: $cmd\n");
+    print("\nUsage: blockstats.pl [cmd]\n");
+    print("  cmds: all, hosts, failed, blocked, success\n");
+    print("  default is all\n");
+    exit 1;
 }
 
-open(FILE, $log) || die "Could not open $log\n";
-
-while (<FILE>) {
+while (<>) {
     my @fields = split;
 
     my $len = scalar(@fields);
@@ -98,8 +91,6 @@ while (<FILE>) {
         print("Unhandled response type: $response\n");
     }
 }
-
-close(FILE);
 
 if ($cmd eq 'summary' || $cmd eq 'hosts') {
     dump_hosts(\%stats);
