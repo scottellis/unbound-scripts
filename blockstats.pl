@@ -12,12 +12,13 @@ my %stats = ( total => { queries => 0, success => 0, block => 0, fail => 0 } );
 my @valid_cmds = ('summary', 'hosts', 'failed', 'blocked', 'success');
 
 my $cmd = 'summary';
+my $number = 10;
 
-GetOptions('cmd=s' => \$cmd) or die "Bad options\n";
+GetOptions('cmd=s' => \$cmd, 'number|n=i' => \$number) or die "Bad options\n";
 
-my $count = grep { /$cmd/ } @valid_cmds;
+my $valid = grep { /$cmd/ } @valid_cmds;
 
-if ($count != 1) {
+if ($valid != 1) {
     print("Unknown command: $cmd\n");
     print("\nUsage: blockstats.pl [cmd]\n");
     print("  cmds: all, hosts, failed, blocked, success\n");
@@ -141,19 +142,17 @@ sub dump_targets {
     my @sorted_targets = sort { $hash->{$b} <=> $hash->{$a} } keys %{$hash};
 
     if ($cmd eq 'summary') {
-        print("\n======== Top 10 $prompt Targets ========\n");
-
-        my $count = 0;
-
-        foreach my $target (@sorted_targets) {
-            print("$hash->{$target} $target\n");
-            $count++;
-            last if ($count == 10);
-        }
+        print("\n======== Top $number $prompt Targets ========\n");
     }
-    else {
-        foreach my $target (@sorted_targets) {
-            print("$hash->{$target} $target\n");
+
+    my $count = 0;
+
+    foreach my $target (@sorted_targets) {
+        print("$hash->{$target} $target\n");
+
+        if ($number > 0) {
+            $count++;
+            last if ($count >= $number);
         }
     }
 }
