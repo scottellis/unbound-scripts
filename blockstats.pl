@@ -9,20 +9,22 @@ my %nxdomain;
 my %servfail;
 my %stats = ( total => { queries => 0, success => 0, block => 0, fail => 0 } );
 
-my @valid_cmds = ('summary', 'hosts', 'failed', 'blocked', 'success');
+my @valid_cmds = ('hosts', 'failed', 'blocked', 'success');
 
-my $cmd = 'summary';
+my $cmd = 'hosts';
 my $number = 10;
+my $verbose = '';
 
-GetOptions('cmd=s' => \$cmd, 'number|n=i' => \$number) or die "Bad options\n";
+GetOptions('cmd|c=s' => \$cmd, 'number|n=i' => \$number, 'verbose|v' => \$verbose) or die "Bad options\n";
 
 my $valid = grep { /$cmd/ } @valid_cmds;
 
 if ($valid != 1) {
     print("Unknown command: $cmd\n");
-    print("\nUsage: blockstats.pl [cmd]\n");
-    print("  cmds: all, hosts, failed, blocked, success\n");
-    print("  default is all\n");
+    print("\nUsage: blockstats.pl [--cmds=<cmd>] [--number=<number-of-lines>] [--verbose]\n");
+    print("  --cmds       all, hosts, failed, blocked, success, default is all\n");
+    print("  --number     default is 10\n");
+    print("  --verbose    verbose output\n");
     exit 1;
 }
 
@@ -38,6 +40,8 @@ while (<>) {
 
     # remove trailing period
     $dst =~ s/\.$//;
+
+    next if ($dst =~ /\.jumpnow$/);
 
     # skip Chrome's non-existent domain requests (no '.' in hostname)
     next unless $dst =~ /\./;
@@ -93,27 +97,24 @@ while (<>) {
     }
 }
 
-if ($cmd eq 'summary' || $cmd eq 'hosts') {
-    dump_hosts(\%stats);
+if ($cmd eq 'hosts') {
+    dump_hosts(\%stats)
 }
-
-if ($cmd eq 'summary' || $cmd eq 'failed') {
+elsif ($cmd eq 'failed') {
     dump_targets('Failed', \%servfail);
 }
-
-if ($cmd eq 'summary' || $cmd eq 'blocked') {
+elsif ($cmd eq 'blocked') {
     dump_targets('Blocked', \%nxdomain);
 }
-
-if ($cmd eq 'summary' || $cmd eq 'success') {
+elsif ($cmd eq 'success') {
     dump_targets('Success', \%noerror);
 }
 
 sub dump_hosts {
     my $hash = shift;
 
-    if ($cmd eq 'summary') {
-        print("\n======== Query Summaries by Host ========\n");
+    if ($verbose) {
+        print("Summaries by Host\n");
     }
 
     foreach my $host (sort keys %{$hash}) {
@@ -122,7 +123,7 @@ sub dump_hosts {
         my $block = $hash->{$host}{block};
         my $fail = $hash->{$host}{fail};
 
-        if ($cmd eq 'summary') {
+        if ($verbose) {
             print("\n$host\n");
             printf("    Queries: %d\n", $queries);
             printf("    Success: %d (%.1f%%)\n", $success, (100.0 * $success) / $queries);
@@ -141,8 +142,8 @@ sub dump_targets {
 
     my @sorted_targets = sort { $hash->{$b} <=> $hash->{$a} } keys %{$hash};
 
-    if ($cmd eq 'summary') {
-        print("\n======== Top $number $prompt Targets ========\n");
+    if ($verbose) {
+        print("======== Top $number $prompt Targets ========\n");
     }
 
     my $count = 0;
