@@ -14,7 +14,7 @@ tmpfile=$(mktemp)
 blocklist="/tmp/blocklist.conf"
 
 if [ ! -z $1 ]; then
-    whitelist=$1
+    allowlist=$1
 fi
 
 #
@@ -98,26 +98,26 @@ done
 #
 # Sort and remove duplicates
 #
-# cat $tmpfile | tr '[:upper:]' '[:lower:]' | sort -u > /tmp/blacklist
-lower_sort_uniq $tmpfile > /tmp/blacklist
+# cat $tmpfile | tr '[:upper:]' '[:lower:]' | sort -u > /tmp/blocklist
+lower_sort_uniq $tmpfile > /tmp/blocklist
 
 rm -f $tmpfile
 
 #
-# if we have a whitelist with some entries, make sure it is lower case and sorted
-# then remove those lines from the blacklist
+# If we have an allowlist with some entries, make sure it is lower case
+# and sorted then remove those lines from the blocklist
 #
-if [ -z $whitelist ]; then
-    mv /tmp/blacklist /tmp/final
+if [ -z $allowlist ]; then
+    mv /tmp/blocklist /tmp/final
 
-elif [ -f $whitelist ]; then
-    count=$(wc -l $whitelist | awk '{ print $1 }')
+elif [ -f $allowlist ]; then
+    count=$(wc -l $allowlist | awk '{ print $1 }')
 
     if [ $count -gt 0 ]; then
-        echo "Removing whitelisted items"
-        # cat $whitelist | tr '[:upper:]' '[:lower:]' | sort -u > /tmp/whitelist
-        lower_sort_uniq $whitelist > /tmp/whitelist
-        comm -23 /tmp/blacklist /tmp/whitelist > /tmp/final
+        echo "Removing allowlist items from blocklist"
+        # cat $allowlist | tr '[:upper:]' '[:lower:]' | sort -u > /tmp/allowlist
+        lower_sort_uniq $allowlist > /tmp/allowlist
+        comm -23 /tmp/blocklist /tmp/allowlist > /tmp/final
     fi
 fi
 

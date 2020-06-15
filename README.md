@@ -6,7 +6,7 @@ The scripts and configs are not intended to be *OpenBSD* specific, but it is the
 
 The script *fetchlists.sh* will fetch, parse and consolidate the [DoH][doh], advertising and malware blocklists and format them for use in *unbound*.
 
-If you provide a whitelist file as an argument to *fetchlists.sh* it will remove those items from the resulting blocklist.
+If you provide an *allowlist* file as an argument to *fetchlists.sh* it will remove those items from the resulting *blocklist*.
 
 The *fetchlists.sh* script uses the built-in *ftp* on OpenBSD. On Linux *curl* is required.
 
